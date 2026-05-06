@@ -1,6 +1,10 @@
 from pylabrobot.micronic.code_reader import (
   MicronicBarcodeScannerError,
   MicronicCodeReader,
+  MicronicDirectCodeReader,
+  MicronicDirectDriver,
+  MicronicDirectRackReaderError,
+  MicronicDirectRackReadingBackend,
   MicronicError,
   MicronicIOMonitorBarcodeScannerBackend,
   MicronicIOMonitorDriver,
