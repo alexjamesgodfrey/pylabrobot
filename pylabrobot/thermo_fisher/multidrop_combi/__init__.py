@@ -16,6 +16,11 @@ from pylabrobot.thermo_fisher.multidrop_combi.helpers import (
   plate_well_count,
 )
 from pylabrobot.thermo_fisher.multidrop_combi.multidrop_combi import MultidropCombi
+from pylabrobot.thermo_fisher.multidrop_combi.multidrop_combi_nl import MultidropCombiNl
+from pylabrobot.thermo_fisher.multidrop_combi.multidrop_combi_nl_backend import (
+  MultidropCombiNlValveDispensingBackend8,
+  encode_well_volumes,
+)
 from pylabrobot.thermo_fisher.multidrop_combi.peristaltic_dispensing_backend8 import (
   MultidropCombiPeristalticDispensingBackend8,
 )

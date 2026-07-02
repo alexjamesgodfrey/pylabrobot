@@ -328,6 +328,28 @@ Bulk Dispensing - Syringe
     SyringeDispensingBackend8
 
 
+Bulk Dispensing - Valve
+-----------------------
+
+.. currentmodule:: pylabrobot.capabilities.bulk_dispensers.valve.valve8
+
+.. autosummary::
+  :toctree: _autosummary
+  :nosignatures:
+  :recursive:
+
+    ValveDispensing8
+
+.. currentmodule:: pylabrobot.capabilities.bulk_dispensers.valve.backend8
+
+.. autosummary::
+  :toctree: _autosummary
+  :nosignatures:
+  :recursive:
+
+    ValveDispensingBackend8
+
+
 Liquid Handling - PIP (Independent Channels)
 --------------------------------------------
 

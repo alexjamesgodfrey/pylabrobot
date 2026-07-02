@@ -65,6 +65,13 @@ tr > td:nth-child(5) { width: 15%; }
 |--------------|---------|-------------|--------|
 | Agilent (BioTek) | EL406 | Mostly | [PLR](00_liquid-handling/plate-washing/biotek-el406.ipynb) / [OEM](https://www.agilent.com/en/product/microplate-instrumentation/microplate-washers-dispensers/biotek-el406-washer-dispenser-795212) |
 
+### Bulk Reagent Dispensers
+
+| Manufacturer | Machine | Features | PLR-Support | Links |
+|--------------|---------|----------|-------------|--------|
+| Thermo Fisher Scientific | Multidrop Combi | <span class="badge badge-liquid">bulk dispensing</span> | Mostly | [PLR](thermo_fisher/multidrop_combi/hello-world.ipynb) / [OEM](https://www.thermofisher.com/us/en/home/life-science/lab-equipment/multidrop-dispensers.html) |
+| Thermo Fisher Scientific | Multidrop Combi nL | <span class="badge badge-liquid">bulk dispensing</span><span class="badge badge-liquid">per-well</span> | Full | [PLR](thermo_fisher/multidrop_combi/hello-world-nl.ipynb) / [OEM](https://www.thermofisher.com/order/catalog/product/5840400) |
+
 ---
 
 ## Material Handling
