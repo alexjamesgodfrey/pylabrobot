@@ -101,7 +101,7 @@ class MultidropCombiPeristalticDispensingBackend8(PeristalticDispensingBackend8)
     vol_max = max(volumes.values())
     logger.info(
       "[Multidrop %s] dispense: plate=%s, columns=%d, volume_range=%.1f-%.1f uL",
-      self._driver._port,
+      self._driver.description,
       plate.name,
       len(volumes),
       vol_min,
@@ -149,7 +149,7 @@ class MultidropCombiPeristalticDispensingBackend8(PeristalticDispensingBackend8)
       raise ValueError(f"Prime volume must be 1-10000 uL, got {volume} uL")
     logger.info(
       "[Multidrop %s] prime: volume=%.1f uL, mode=%s",
-      self._driver._port,
+      self._driver.description,
       volume,
       backend_params.mode.name,
     )
@@ -198,7 +198,7 @@ class MultidropCombiPeristalticDispensingBackend8(PeristalticDispensingBackend8)
       raise ValueError(f"Purge volume must be 1-10000 uL, got {volume} uL")
     logger.info(
       "[Multidrop %s] purge: volume=%.1f uL, mode=%s",
-      self._driver._port,
+      self._driver.description,
       volume,
       backend_params.mode.name,
     )
@@ -226,7 +226,7 @@ class MultidropCombiPeristalticDispensingBackend8(PeristalticDispensingBackend8)
       raise ValueError(f"Shake time must be > 0, got {time}s")
     logger.info(
       "[Multidrop %s] shake: duration=%.1f s, distance=%d mm, speed=%d Hz",
-      self._driver._port,
+      self._driver.description,
       time,
       distance,
       speed,
@@ -251,7 +251,7 @@ class MultidropCombiPeristalticDispensingBackend8(PeristalticDispensingBackend8)
 
   async def abort(self) -> None:
     """Abort the current operation."""
-    logger.info("[Multidrop %s] abort", self._driver._port)
+    logger.info("[Multidrop %s] abort", self._driver.description)
     await self._driver.send_abort_signal()
 
   async def set_dispense_offset(self, x_offset: int, y_offset: int) -> None:

@@ -1,6 +1,8 @@
-"""Thermo Scientific Multidrop Combi device."""
+"""Thermo Scientific Multidrop Combi device (serial)."""
 
 from __future__ import annotations
+
+from typing import Optional
 
 from pylabrobot.capabilities.bulk_dispensers.peristaltic import PeristalticDispensing8
 from pylabrobot.device import Device
@@ -11,11 +13,12 @@ from pylabrobot.thermo_fisher.multidrop_combi.peristaltic_dispensing_backend8 im
 
 
 class MultidropCombi(Device):
-  """Thermo Scientific Multidrop Combi reagent dispenser.
+  """Thermo Scientific Multidrop Combi reagent dispenser (RS232/USB serial).
 
   Args:
     port: Serial port (e.g. "COM3", "/dev/ttyUSB0").
     timeout: Default serial read timeout in seconds.
+    driver: Optional pre-built driver (overrides port/timeout).
   """
 
   def __init__(
@@ -23,7 +26,7 @@ class MultidropCombi(Device):
     port: str,
     timeout: float = 30.0,
     *,
-    driver: MultidropCombiDriver | None = None,
+    driver: Optional[MultidropCombiDriver] = None,
   ) -> None:
     if driver is None:
       driver = MultidropCombiDriver(port=port, timeout=timeout)
