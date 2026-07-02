@@ -1,11 +1,17 @@
-"""Driver for the Thermo Scientific Multidrop Combi."""
+"""Driver for the Thermo Scientific Multidrop Combi family.
+
+One driver serves both the Multidrop Combi and the Combi nL: they speak the same
+ASCII command protocol (``CMD\r`` -> data lines -> ``<CMD> END <status>``) over
+RS232 serial (9600 8N1, XON/XOFF). The driver owns the serial connection and
+implements the shared protocol on top of it.
+"""
 
 from __future__ import annotations
 
 import asyncio
 import contextlib
 import logging
-from typing import Optional
+from typing import ContextManager, Optional
 
 from pylabrobot.capabilities.capability import BackendParams
 from pylabrobot.device import Driver
@@ -66,26 +72,22 @@ ERROR_DESCRIPTIONS = {
 
 
 class MultidropCombiDriver(Driver):
-  """Driver for the Thermo Scientific Multidrop Combi reagent dispenser.
+  """Serial driver for the Thermo Scientific Multidrop Combi family.
 
-  Owns the serial connection and provides generic command transport,
-  device-level operations (send_abort_signal, restart, acknowledge_error), and queries.
-
-  Communication is via RS232/USB serial at 9600 baud, 8N1.
+  The Multidrop Combi and Combi nL share this driver and ASCII command protocol,
+  both over RS232 serial (9600 8N1, XON/XOFF). The driver owns a
+  :class:`pylabrobot.io.serial.Serial` connection and frames the protocol on top
+  of it.
 
   Args:
     port: Serial port (e.g. "COM3", "/dev/ttyUSB0").
     timeout: Default serial read timeout in seconds.
   """
 
-  def __init__(
-    self,
-    port: str,
-    timeout: float = 30.0,
-  ) -> None:
+  def __init__(self, port: str, timeout: float = 30.0) -> None:
     super().__init__()
     self._port = port
-    self.timeout = timeout
+    self._timeout = timeout
     self.io = Serial(
       human_readable_device_name="Multidrop Combi",
       port=port,
@@ -101,6 +103,13 @@ class MultidropCombiDriver(Driver):
     self._instrument_name: str = ""
     self._firmware_version: str = ""
     self._serial_number: str = ""
+
+  @property
+  def description(self) -> str:
+    """Human-readable identifier for logging (the serial port)."""
+    return self._port
+
+  # --- Lifecycle ---
 
   async def setup(self, backend_params: Optional[BackendParams] = None) -> None:
     self._command_lock = asyncio.Lock()
@@ -125,15 +134,23 @@ class MultidropCombiDriver(Driver):
     self._command_lock = None
 
   def serialize(self) -> dict:
-    return {
-      **super().serialize(),
-      "port": self._port,
-      "timeout": self.timeout,
-    }
+    return {**super().serialize(), "port": self._port, "timeout": self._timeout}
+
+  @classmethod
+  def deserialize(cls, data: dict) -> "MultidropCombiDriver":
+    data = dict(data)
+    data.pop("type", None)
+    return cls(**data)
 
   # --- Command transport ---
 
-  async def send_command(self, cmd: str, timeout: float | None = None) -> list[str]:
+  def _command_timeout(self, timeout: Optional[float]) -> ContextManager[None]:
+    """Context manager applying a per-command read timeout (None = default)."""
+    if timeout is None:
+      return contextlib.nullcontext()
+    return self.io.temporary_timeout(timeout)
+
+  async def send_command(self, cmd: str, timeout: Optional[float] = None) -> list[str]:
     """Send a command and return the data lines from the response.
 
     Args:
@@ -153,7 +170,7 @@ class MultidropCombiDriver(Driver):
     cmd_code = cmd.split()[0]
 
     async with self._command_lock:
-      with self.io.temporary_timeout(timeout) if timeout is not None else contextlib.nullcontext():
+      with self._command_timeout(timeout):
         try:
           logger.debug("TX: %r", cmd)
           await self.io.write(f"{cmd}\r".encode("ascii"))
@@ -242,18 +259,21 @@ class MultidropCombiDriver(Driver):
     return await self.send_command("LOG", timeout=10.0)
 
   async def read_cassette_info(self) -> list[str]:
-    """Read RFID cassette info (RIR command)."""
+    """Read RFID cassette info (RIR command).
+
+    Not supported on the Combi nL (returns instrument status 2).
+    """
     return await self.send_command("RIR", timeout=5.0)
 
   # --- Internal helpers ---
 
   async def _drain_stale_data(self) -> None:
-    """Drain any stale data from the serial buffer."""
+    """Drain any stale data from the serial buffer before entering remote mode."""
     await self.io.reset_input_buffer()
     await self.io.reset_output_buffer()
 
     drained = 0
-    with self.io.temporary_timeout(0.3):
+    with self._command_timeout(0.3):
       while True:
         stale = await self.io.readline()
         if not stale:
@@ -261,7 +281,7 @@ class MultidropCombiDriver(Driver):
         drained += 1
         logger.debug("Drained stale data: %r", stale)
     if drained:
-      logger.info("Drained %d stale lines from serial buffer", drained)
+      logger.info("Drained %d stale lines", drained)
 
   async def _enter_remote_mode(self) -> dict:
     """Send VER to enter remote control mode and get instrument info."""

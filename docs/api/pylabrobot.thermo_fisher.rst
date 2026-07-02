@@ -15,6 +15,24 @@ Multidrop Combi
 
     MultidropCombi
 
+.. currentmodule:: pylabrobot.thermo_fisher.multidrop_combi.multidrop_combi_nl
+
+.. autosummary::
+  :toctree: _autosummary
+  :nosignatures:
+  :recursive:
+
+    MultidropCombiNl
+
+.. currentmodule:: pylabrobot.thermo_fisher.multidrop_combi.multidrop_combi_nl_backend
+
+.. autosummary::
+  :toctree: _autosummary
+  :nosignatures:
+  :recursive:
+
+    MultidropCombiNlValveDispensingBackend8
+
 .. currentmodule:: pylabrobot.thermo_fisher.multidrop_combi.driver
 
 .. autosummary::
